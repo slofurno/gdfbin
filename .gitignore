@@ -1,0 +1,10 @@
+*
+!*.*
+!*/
+!makefile
+
+*.exe
+*.swp
+*.swo
+
+*.db
