@@ -26,6 +26,12 @@ func pasteHandler(res http.ResponseWriter, req *http.Request) {
 		path := req.URL.Path[1:]
 		fmt.Println(path)
 
+		if len(path) <= 1 {
+			res.Write([]byte("<!DOCTYPE html><meta charset=\"utf-8\"><pre>cat main.go | curl -d @- https://gdf3.com</pre>"))
+		}
+
+		fmt.Println(path)
+
 		rows, err := pastebin.Query("select content from pastes WHERE id = ?", path)
 
 		if err != nil {
@@ -57,7 +63,7 @@ func pasteHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		res.Write([]byte(hash))
+		res.Write([]byte("https://gdf3.com/" + hash + "\n"))
 
 		break
 	}
@@ -102,6 +108,6 @@ func main() {
 	}
 
 	http.HandleFunc("/", pasteHandler)
-	http.ListenAndServe(":666", nil)
+	http.ListenAndServe("127.0.0.1:666", nil)
 
 }
