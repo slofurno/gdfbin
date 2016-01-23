@@ -41,7 +41,7 @@ func pasteHandler(res http.ResponseWriter, req *http.Request) {
 		for rows.Next() {
 			var content string
 			rows.Scan(&content)
-			res.Write([]byte(content))
+			res.Write([]byte("<!DOCTYPE html><meta charset=\"utf-8\"><pre>" + content + "</pre>"))
 		}
 
 		break
