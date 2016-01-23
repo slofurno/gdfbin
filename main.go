@@ -27,7 +27,7 @@ func pasteHandler(res http.ResponseWriter, req *http.Request) {
 		fmt.Println(path)
 
 		if len(path) <= 1 {
-			res.Write([]byte("<!DOCTYPE html><meta charset=\"utf-8\"><pre>cat main.go | curl -d @- https://gdf3.com</pre>"))
+			res.Write([]byte("<!DOCTYPE html><meta charset=\"utf-8\"><pre>cat main.go | curl --data-binary @- https://gdf3.com</pre>"))
 		}
 
 		fmt.Println(path)
