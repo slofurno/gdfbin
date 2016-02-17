@@ -39,10 +39,10 @@ func pasteHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		for rows.Next() {
-			var content string
+			var content []byte
 			rows.Scan(&content)
 			res.Header().Add("Content-Type", "text/plain; charset=utf-8")
-			res.Write([]byte(content))
+			res.Write(content)
 		}
 
 		break
@@ -111,6 +111,10 @@ func main() {
 	}
 
 	http.HandleFunc("/", pasteHandler)
-	http.ListenAndServe("127.0.0.1:666", nil)
+	err = http.ListenAndServe(":666", nil)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 }
