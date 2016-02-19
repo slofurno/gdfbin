@@ -1,76 +1,21 @@
 package main
 
 import (
-	"bytes"
 	"crypto/rand"
 	"database/sql"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
-	"io"
 	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
-var pastebin *sql.DB
+var store *DataStore
 
 func randomHash() string {
 
 	var b = make([]byte, 5)
 	rand.Read(b)
 	return crock32(b)
-}
-
-func pasteHandler(res http.ResponseWriter, req *http.Request) {
-
-	switch req.Method {
-	case "GET":
-		path := req.URL.Path[1:]
-
-		if len(path) <= 1 {
-			res.Write([]byte("<!DOCTYPE html><meta charset=\"utf-8\"><pre>cat main.go | curl --data-binary @- https://gdf3.com</pre>"))
-			return
-		}
-
-		rows, err := pastebin.Query("select content from pastes WHERE id = ?", path)
-
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(500)
-			return
-		}
-
-		for rows.Next() {
-			var content []byte
-			rows.Scan(&content)
-			res.Header().Add("Content-Type", "text/plain; charset=utf-8")
-			res.Write(content)
-		}
-
-		break
-	case "POST":
-
-		buf := bytes.NewBuffer(nil)
-		_, err := io.Copy(buf, req.Body)
-
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(500)
-			return
-		}
-
-		hash := randomHash()
-
-		_, err = pastebin.Exec("insert into pastes values (?,?)", hash, buf.Bytes())
-
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(500)
-			return
-		}
-
-		res.Write([]byte("https://gdf3.com/" + hash + "\n"))
-		break
-	}
-
 }
 
 var symbols = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
@@ -104,12 +49,15 @@ func crock32(bytes []byte) string {
 func main() {
 
 	var err error
-	pastebin, err = sql.Open("sqlite3", "./pastes.db")
+	var db *sql.DB
+	db, err = sql.Open("sqlite3", "./pastes.db")
+	store = NewDataStore(db)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
+	http.HandleFunc("/user", userHandler)
 	http.HandleFunc("/", pasteHandler)
 	err = http.ListenAndServe(":666", nil)
 
