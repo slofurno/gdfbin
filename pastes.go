@@ -6,15 +6,15 @@ import (
 )
 
 type Paste struct {
-	id      string
-	content []byte
-	time    int64
+	Id      string
+	Content []byte
+	Time    int64
 }
 
 func NewPaste() *Paste {
 	return &Paste{
-		id:   randomHash(),
-		time: epoch_ms(),
+		Id:   randomHash(5),
+		Time: epoch_ms(),
 	}
 }
 
@@ -28,7 +28,7 @@ type pasteStore struct {
 }
 
 func (s *pasteStore) Insert(paste *Paste) error {
-	_, err := s.DB.Exec("insert into pastes values (?,?,?)", paste.id, paste.content, paste.time)
+	_, err := s.DB.Exec("insert into pastes values (?,?,?)", paste.Id, paste.Content, paste.Time)
 	return err
 }
 
@@ -42,7 +42,7 @@ func (s *pasteStore) Get(id string) (*Paste, error) {
 	paste := &Paste{}
 
 	for rows.Next() {
-		rows.Scan(&paste.id, &paste.content, &paste.time)
+		rows.Scan(&paste.Id, &paste.Content, &paste.Time)
 	}
 
 	return paste, nil

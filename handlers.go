@@ -2,13 +2,117 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-func userHandler(res http.ResponseWriter, req *http.Request) {
+func createAccount(res http.ResponseWriter, req *http.Request) {
+	var err error
+	buf := bytes.NewBuffer(nil)
+	_, err = io.Copy(buf, req.Body)
 
+	fmt.Println(string(buf.Bytes()))
+
+	if err != nil {
+		return
+	}
+
+	var acc = &struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}{}
+
+	err = json.Unmarshal(buf.Bytes(), acc)
+
+	if err != nil {
+		res.Write([]byte(err.Error()))
+		return
+	}
+
+	account, err := NewAccount(acc.Email, acc.Password)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	err = store.Accounts.Insert(account)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	login := NewLogin(account)
+
+	err = store.Logins.Insert(login)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	res.Write([]byte(login.Token + "\n"))
+}
+
+func createBookmark(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	paste := vars["paste"]
+	name := vars["name"]
+
+	token := req.Header.Get("Auth")
+
+	account, err := store.Logins.GetAccount(token)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if account == nil {
+		res.Write([]byte("no account found"))
+		return
+	}
+
+	bookmark := &Bookmark{}
+	bookmark.Account = account.Id
+	bookmark.Name = name
+	bookmark.Paste = paste
+
+	err = store.Bookmarks.Insert(bookmark)
+
+	if err != nil {
+		res.Write([]byte(err.Error()))
+		return
+	}
+
+	res.WriteHeader(200)
+}
+
+func getBookmarks(res http.ResponseWriter, req *http.Request) {
+
+	token := req.Header.Get("Auth")
+	account, err := store.Logins.GetAccount(token)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	bookmarks, err := store.Bookmarks.Get(account)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, bookmark := range bookmarks {
+		res.Write([]byte(bookmark.Name + "\t" + bookmark.Paste + "\n"))
+	}
 }
 
 func pasteHandler(res http.ResponseWriter, req *http.Request) {
@@ -31,7 +135,7 @@ func pasteHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		res.Header().Add("Content-Type", "text/plain; charset=utf-8")
-		res.Write(paste.content)
+		res.Write(paste.Content)
 
 		break
 	case "POST":
@@ -46,7 +150,7 @@ func pasteHandler(res http.ResponseWriter, req *http.Request) {
 		}
 
 		paste := NewPaste()
-		paste.content = buf.Bytes()
+		paste.Content = buf.Bytes()
 		err = store.Pastes.Insert(paste)
 
 		if err != nil {
@@ -55,7 +159,7 @@ func pasteHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		res.Write([]byte("https://gdf3.com/" + paste.id + "\n"))
+		res.Write([]byte("https://gdf3.com/" + paste.Id + "\n"))
 		break
 	}
 

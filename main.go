@@ -6,14 +6,15 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var store *DataStore
 
-func randomHash() string {
+func randomHash(n int) string {
 
-	var b = make([]byte, 5)
+	var b = make([]byte, n)
 	rand.Read(b)
 	return crock32(b)
 }
@@ -57,9 +58,14 @@ func main() {
 		fmt.Println(err)
 	}
 
-	http.HandleFunc("/user", userHandler)
-	http.HandleFunc("/", pasteHandler)
-	err = http.ListenAndServe(":666", nil)
+	r := mux.NewRouter()
+
+	r.HandleFunc("/bookmarks/{paste}/{name}", createBookmark).Methods("POST")
+	r.HandleFunc("/bookmarks", getBookmarks).Methods("GET")
+
+	r.HandleFunc("/user", createAccount)
+	r.HandleFunc("/", pasteHandler).Methods("POST", "GET")
+	err = http.ListenAndServe(":666", r)
 
 	if err != nil {
 		fmt.Println(err)
