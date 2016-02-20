@@ -87,6 +87,32 @@ func createBookmark(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(200)
 }
 
+func getBookmark(res http.ResponseWriter, req *http.Request) {
+
+	token := req.Header.Get("Auth")
+	account, err := store.Logins.GetAccount(token)
+
+	if err != nil {
+		return
+	}
+
+	vars := mux.Vars(req)
+	name := vars["name"]
+
+	bookmark := &Bookmark{
+		Name:    name,
+		Account: account.Id,
+	}
+
+	paste := store.Bookmarks.GetPaste(bookmark)
+
+	if paste == nil {
+		return
+	}
+
+	res.Write(paste.Content)
+}
+
 func getBookmarks(res http.ResponseWriter, req *http.Request) {
 
 	token := req.Header.Get("Auth")
