@@ -12,21 +12,14 @@ import (
 
 func createAccount(res http.ResponseWriter, req *http.Request) {
 	var err error
-	buf := bytes.NewBuffer(nil)
-	_, err = io.Copy(buf, req.Body)
-
-	fmt.Println(string(buf.Bytes()))
-
-	if err != nil {
-		return
-	}
 
 	var acc = &struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}{}
 
-	err = json.Unmarshal(buf.Bytes(), acc)
+	decoder := json.NewDecoder(req.Body)
+	err = decoder.Decode(acc)
 
 	if err != nil {
 		res.Write([]byte(err.Error()))
@@ -78,10 +71,11 @@ func createBookmark(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	bookmark := &Bookmark{}
-	bookmark.Account = account.Id
-	bookmark.Name = name
-	bookmark.Paste = paste
+	bookmark := &Bookmark{
+		Account: account.Id,
+		Name:    name,
+		Paste:   paste,
+	}
 
 	err = store.Bookmarks.Insert(bookmark)
 
