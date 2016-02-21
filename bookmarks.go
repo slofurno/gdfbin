@@ -9,6 +9,7 @@ type Bookmark struct {
 	Account string
 	Paste   string
 	Name    string
+	Time    int64
 }
 
 type bookmarkStore struct {
@@ -44,7 +45,18 @@ func (s *bookmarkStore) GetPaste(bookmark *Bookmark) *Paste {
 }
 
 func (s *bookmarkStore) Get(account *Account) ([]*Bookmark, error) {
-	query := "SELECT paste, name FROM bookmarks WHERE bookmarks.account = ?"
+	//query := "SELECT paste, name FROM bookmarks WHERE bookmarks.account = ?"
+
+	query := `
+	SELECT bookmarks.paste, bookmarks.name, pastes.time
+	FROM bookmarks 
+	INNER JOIN pastes
+	ON bookmarks.paste = pastes.id
+	WHERE bookmarks.account = ? 
+	GROUP BY bookmarks.name
+	ORDER BY time DESC 
+	`
+
 	rows, err := s.DB.Query(query, account.Id)
 
 	if err != nil {
@@ -55,7 +67,7 @@ func (s *bookmarkStore) Get(account *Account) ([]*Bookmark, error) {
 
 	for rows.Next() {
 		bookmark := &Bookmark{}
-		rows.Scan(&bookmark.Paste, &bookmark.Name)
+		rows.Scan(&bookmark.Paste, &bookmark.Name, &bookmark.Time)
 		bookmarks = append(bookmarks, bookmark)
 	}
 

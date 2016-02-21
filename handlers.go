@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -131,7 +133,12 @@ func getBookmarks(res http.ResponseWriter, req *http.Request) {
 	}
 
 	for _, bookmark := range bookmarks {
-		res.Write([]byte(bookmark.Name + "\t" + bookmark.Paste + "\n"))
+		dt := time.Now().Sub(time.Unix(bookmark.Time/1000, 0))
+		h := dt.Hours()
+
+		d := int(h / 24)
+
+		res.Write([]byte(bookmark.Name + "\t" + bookmark.Paste + "\t" + strconv.Itoa(d) + " days ago" + "\n"))
 	}
 }
 
