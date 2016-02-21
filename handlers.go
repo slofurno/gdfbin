@@ -134,11 +134,17 @@ func getBookmarks(res http.ResponseWriter, req *http.Request) {
 
 	for _, bookmark := range bookmarks {
 		dt := time.Now().Sub(time.Unix(bookmark.Time/1000, 0))
-		h := dt.Hours()
+		var modified string
+		h := int(dt.Hours())
 
-		d := int(h / 24)
+		if h >= 24 {
+			d := int(h / 24)
+			modified = strconv.Itoa(d) + " days ago"
+		} else {
+			modified = strconv.Itoa(h) + " hours ago"
+		}
 
-		res.Write([]byte(bookmark.Name + "\t" + bookmark.Paste + "\t" + strconv.Itoa(d) + " days ago" + "\n"))
+		res.Write([]byte(bookmark.Name + "\t" + bookmark.Paste + "\t" + modified + "\n"))
 	}
 }
 
