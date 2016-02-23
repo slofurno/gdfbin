@@ -137,9 +137,11 @@ func getBookmarks(res http.ResponseWriter, req *http.Request) {
 		var modified string
 		h := int(dt.Hours())
 
-		if h >= 24 {
+		if h >= 48 {
 			d := int(h / 24)
 			modified = strconv.Itoa(d) + " days ago"
+		} else if h >= 24 {
+			modified = "yesterday"
 		} else {
 			modified = strconv.Itoa(h) + " hours ago"
 		}
