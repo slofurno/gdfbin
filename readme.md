@@ -1,6 +1,6 @@
 ## Usage
 
-### using curl 
+### Using curl 
 
 ```
 cat index.js | curl --data-binary @- https://gdf3.com
@@ -10,9 +10,9 @@ or
 curl --data-binary @index.js gdf3.com
 ```
 
-### using the cli
+### Using the cli
 
-run install to setup the script and make a symlink
+run install
 
 ```
 ./install.sh
@@ -43,7 +43,7 @@ gdf3 get webpack > webpack.config.js
 ```
 
 
-## hosting your own pastebin
+## Hosting 
 
 ### init the sqlite database
 

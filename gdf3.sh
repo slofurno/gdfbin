@@ -16,6 +16,9 @@ case $1 in
     name=`curl --data-binary @- $url | sed 's|https://gdf3.com/||'`
     curl -X POST "$url/bookmarks/$name/$2" -H "Auth: $token"
     ;;
+  paste )
+    curl --data-binary @- $url
+    ;;
   register )
     token=`curl -X POST $url/user -d "{\"email\":\"$2\", \"password\":\"$3\"}"` 
     echo "$token" > $basedir/.gdf3.token 
