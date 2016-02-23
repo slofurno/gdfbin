@@ -21,6 +21,17 @@ func (s *bookmarkStore) Insert(bookmark *Bookmark) error {
 	return err
 }
 
+func (s *bookmarkStore) Remove(bookmark *Bookmark) error {
+	query := `
+	DELETE from bookmarks
+	WHERE bookmarks.account = ?
+	AND bookmarks.name = ?`
+
+	_, err := s.DB.Exec(query, bookmark.Account, bookmark.Name)
+
+	return err
+}
+
 func (s *bookmarkStore) GetPaste(bookmark *Bookmark) *Paste {
 	query := `
 	SELECT pastes.content FROM bookmarks 

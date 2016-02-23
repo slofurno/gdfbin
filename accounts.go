@@ -32,6 +32,27 @@ func NewAccount(email string, password string) (*Account, error) {
 	return account, nil
 }
 
+func (s *accountStore) Get(email string, password string) (*Account, error) {
+
+	row := s.DB.QueryRow("select * from accounts where accounts.email = ?", email)
+
+	account := &Account{}
+
+	err := row.Scan(&account.Id, &account.Email, &account.Password)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = bcrypt.CompareHashAndPassword(account.Password, []byte(password))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return account, nil
+}
+
 func (s *accountStore) Insert(account *Account) error {
 	command := "insert into accounts values (?,?,?)"
 	_, err := s.DB.Exec(command, account.Id, account.Email, account.Password)

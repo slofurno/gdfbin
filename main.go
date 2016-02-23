@@ -63,9 +63,12 @@ func main() {
 	r.HandleFunc("/bookmarks/{paste}/{name}", createBookmark).Methods("POST")
 	r.HandleFunc("/bookmarks", getBookmarks).Methods("GET")
 	r.HandleFunc("/bookmarks/{name}", getBookmark).Methods("GET")
+	r.HandleFunc("/bookmarks/{name}", removeBookmark).Methods("DELETE")
 
 	r.HandleFunc("/user", createAccount)
 	r.HandleFunc("/", getHome).Methods("GET")
+
+	r.HandleFunc("/login", getToken).Methods("POST")
 
 	r.HandleFunc("/", postPaste).Methods("POST")
 	r.HandleFunc("/{paste}", getPaste).Methods("GET")

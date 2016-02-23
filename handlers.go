@@ -13,6 +13,40 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type login struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func getToken(res http.ResponseWriter, req *http.Request) {
+	login := &login{}
+	decoder := json.NewDecoder(req.Body)
+	err := decoder.Decode(login)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	account, err := store.Accounts.Get(login.Email, login.Password)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	newlogin := NewLogin(account)
+
+	err = store.Logins.Insert(newlogin)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	res.Write([]byte(newlogin.Token + "\n"))
+}
+
 func createAccount(res http.ResponseWriter, req *http.Request) {
 	var err error
 
@@ -32,27 +66,58 @@ func createAccount(res http.ResponseWriter, req *http.Request) {
 	account, err := NewAccount(acc.Email, acc.Password)
 
 	if err != nil {
-		fmt.Println(err.Error())
 		return
 	}
 
 	err = store.Accounts.Insert(account)
 
 	if err != nil {
+		res.Write([]byte("error: email already in use"))
 		fmt.Println(err.Error())
 		return
 	}
 
 	login := NewLogin(account)
-
 	err = store.Logins.Insert(login)
+
+	if err != nil {
+		return
+	}
+
+	res.Write([]byte(login.Token + "\n"))
+}
+
+func removeBookmark(res http.ResponseWriter, req *http.Request) {
+
+	vars := mux.Vars(req)
+	name := vars["name"]
+
+	token := req.Header.Get("Auth")
+	account, err := store.Logins.GetAccount(token)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if account == nil {
+		res.Write([]byte("no account found"))
+		return
+	}
+
+	bookmark := &Bookmark{
+		Account: account.Id,
+		Name:    name,
+	}
+
+	err = store.Bookmarks.Remove(bookmark)
 
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	res.Write([]byte(login.Token + "\n"))
+	res.WriteHeader(200)
 }
 
 func createBookmark(res http.ResponseWriter, req *http.Request) {

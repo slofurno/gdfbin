@@ -20,11 +20,23 @@ case $1 in
     curl --data-binary @- $url
     ;;
   register )
-    token=`curl -X POST $url/user -d "{\"email\":\"$2\", \"password\":\"$3\"}"` 
+    token=`curl -s -X POST $url/user -d "{\"email\":\"$2\", \"password\":\"$3\"}"` 
+    echo "$token"
+    echo "$token" > $basedir/.gdf3.token 
+    ;;
+  login )
+    echo "$url/login"
+    token=`curl -X POST $url/login -d "{\"email\":\"$2\", \"password\":\"$3\"}"`
     echo "$token" > $basedir/.gdf3.token 
     ;;
   ls )
     curl $url/bookmarks -H "Auth: $token"
+    ;;
+  lsa )
+    echo "not implemented )"
+    ;;
+  rm )
+    curl -X DELETE "$url/bookmarks/$2" -H "Auth: $token"
     ;;
   get )
     curl "$url/bookmarks/$2" -H "Auth: $token"
