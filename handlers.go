@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -144,10 +145,22 @@ func getBookmarks(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	maxLength := 0
+
+	for _, bookmark := range bookmarks {
+		if len(bookmark.Name) > maxLength {
+			maxLength = len(bookmark.Name)
+		}
+	}
+
+	maxLength += 2
+
 	for _, bookmark := range bookmarks {
 		dt := time.Now().Sub(time.Unix(bookmark.Time/1000, 0))
 		var modified string
 		h := int(dt.Hours())
+
+		tab := strings.Repeat(" ", maxLength-len(bookmark.Name))
 
 		if h >= 48 {
 			d := int(h / 24)
@@ -158,7 +171,7 @@ func getBookmarks(res http.ResponseWriter, req *http.Request) {
 			modified = strconv.Itoa(h) + " hours ago"
 		}
 
-		res.Write([]byte(bookmark.Name + "\t" + bookmark.Paste + "\t" + modified + "\n"))
+		res.Write([]byte(bookmark.Name + tab + bookmark.Paste + "\t" + modified + "\n"))
 	}
 }
 
