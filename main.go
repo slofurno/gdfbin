@@ -65,7 +65,11 @@ func main() {
 	r.HandleFunc("/bookmarks/{name}", getBookmark).Methods("GET")
 
 	r.HandleFunc("/user", createAccount)
-	r.HandleFunc("/", pasteHandler).Methods("POST", "GET")
+	r.HandleFunc("/", getHome).Methods("GET")
+
+	r.HandleFunc("/", postPaste).Methods("POST")
+	r.HandleFunc("/{paste}", getPaste).Methods("GET")
+
 	err = http.ListenAndServe(":666", r)
 
 	if err != nil {

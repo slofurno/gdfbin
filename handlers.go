@@ -150,52 +150,48 @@ func getBookmarks(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func pasteHandler(res http.ResponseWriter, req *http.Request) {
+func getPaste(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	id := vars["paste"]
 
-	switch req.Method {
-	case "GET":
-		path := req.URL.Path[1:]
+	paste, err := store.Pastes.Get(id)
 
-		if len(path) <= 1 {
-			res.Write([]byte("<!DOCTYPE html><meta charset=\"utf-8\"><pre>cat main.go | curl --data-binary @- https://gdf3.com</pre>"))
-			return
-		}
-
-		paste, err := store.Pastes.Get(path)
-
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(500)
-			return
-		}
-
-		res.Header().Add("Content-Type", "text/plain; charset=utf-8")
-		res.Write(paste.Content)
-
-		break
-	case "POST":
-
-		buf := bytes.NewBuffer(nil)
-		_, err := io.Copy(buf, req.Body)
-
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(500)
-			return
-		}
-
-		paste := NewPaste()
-		paste.Content = buf.Bytes()
-		err = store.Pastes.Insert(paste)
-
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(500)
-			return
-		}
-
-		res.Write([]byte("https://gdf3.com/" + paste.Id + "\n"))
-		break
+	if err != nil {
+		fmt.Println(err)
+		res.WriteHeader(500)
+		return
 	}
 
+	res.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	res.Write(paste.Content)
+}
+
+func getHome(res http.ResponseWriter, req *http.Request) {
+
+	res.Write([]byte("<!DOCTYPE html><meta charset=\"utf-8\"><pre>cat main.go | curl --data-binary @- https://gdf3.com</pre>"))
+	return
+}
+
+func postPaste(res http.ResponseWriter, req *http.Request) {
+
+	buf := bytes.NewBuffer(nil)
+	_, err := io.Copy(buf, req.Body)
+
+	if err != nil {
+		fmt.Println(err)
+		res.WriteHeader(500)
+		return
+	}
+
+	paste := NewPaste()
+	paste.Content = buf.Bytes()
+	err = store.Pastes.Insert(paste)
+
+	if err != nil {
+		fmt.Println(err)
+		res.WriteHeader(500)
+		return
+	}
+
+	res.Write([]byte("https://gdf3.com/" + paste.Id + "\n"))
 }
