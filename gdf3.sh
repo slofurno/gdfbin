@@ -1,6 +1,6 @@
 #!/bin/sh
 
-url="http://127.0.0.1:666"
+url="https://gdf3.com"
 
 usage (){
   echo "gdf3 register <email> <password>"
