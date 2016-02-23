@@ -1,5 +1,3 @@
-#!/bin/sh
-
 url="https://gdf3.com"
 
 usage (){
@@ -11,7 +9,7 @@ usage (){
   echo "gdf3 get <name>"
 }
 
-token=`cat .gdf3.token 2> /dev/null`
+token=`cat $basedir/.gdf3.token 2> /dev/null`
 
 case $1 in
   mark )
@@ -20,7 +18,7 @@ case $1 in
     ;;
   register )
     token=`curl -X POST $url/user -d "{\"email\":\"$2\", \"password\":\"$3\"}"` 
-    echo "$token" > .gdf3.token 
+    echo "$token" > $basedir/.gdf3.token 
     ;;
   ls )
     curl $url/bookmarks -H "Auth: $token"
