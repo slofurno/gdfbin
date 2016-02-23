@@ -92,6 +92,12 @@ func createBookmark(res http.ResponseWriter, req *http.Request) {
 func getBookmark(res http.ResponseWriter, req *http.Request) {
 
 	token := req.Header.Get("Auth")
+
+	if token == "" {
+		res.Write([]byte("missing Auth header"))
+		return
+	}
+
 	account, err := store.Logins.GetAccount(token)
 
 	if err != nil {
@@ -118,6 +124,12 @@ func getBookmark(res http.ResponseWriter, req *http.Request) {
 func getBookmarks(res http.ResponseWriter, req *http.Request) {
 
 	token := req.Header.Get("Auth")
+
+	if token == "" {
+		res.Write([]byte("missing Auth header"))
+		return
+	}
+
 	account, err := store.Logins.GetAccount(token)
 
 	if err != nil {
