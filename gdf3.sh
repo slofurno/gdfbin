@@ -7,17 +7,18 @@ usage (){
   echo "cat <file> | gdf3 paste"
   echo "gdf3 ls"
   echo "gdf3 get <name>"
+  echo "gdf3 rm <name>"
 }
 
 token=`cat $basedir/.gdf3.token 2> /dev/null`
 
 case $1 in
   mark )
-    name=`curl --data-binary @- $url | sed 's|https://gdf3.com/||'`
+    name=`curl -s --data-binary @- $url | sed 's|https://gdf3.com/||'`
     curl -X POST "$url/bookmarks/$name/$2" -H "Auth: $token"
     ;;
   paste )
-    curl --data-binary @- $url
+    curl -s --data-binary @- $url
     ;;
   register )
     token=`curl -s -X POST $url/user -d "{\"email\":\"$2\", \"password\":\"$3\"}"` 
@@ -26,7 +27,7 @@ case $1 in
     ;;
   login )
     echo "$url/login"
-    token=`curl -X POST $url/login -d "{\"email\":\"$2\", \"password\":\"$3\"}"`
+    token=`curl -s -X POST $url/login -d "{\"email\":\"$2\", \"password\":\"$3\"}"`
     echo "$token" > $basedir/.gdf3.token 
     ;;
   ls )
