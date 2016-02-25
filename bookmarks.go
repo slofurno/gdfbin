@@ -56,17 +56,25 @@ func (s *bookmarkStore) GetPaste(bookmark *Bookmark) *Paste {
 }
 
 func (s *bookmarkStore) Get(account *Account) ([]*Bookmark, error) {
-	//query := "SELECT paste, name FROM bookmarks WHERE bookmarks.account = ?"
+	/*
+		query := `
+		SELECT * FROM
+		(SELECT bookmarks.paste, bookmarks.name, pastes.time
+		FROM pastes
+		INNER JOIN bookmarks
+		ON pastes.id = bookmarks.paste
+		WHERE bookmarks.account = ?
+		ORDER BY pastes.time ASC) as x
+		GROUP BY x.name`
+	*/
 
 	query := `
-	SELECT bookmarks.paste, bookmarks.name, pastes.time
-	FROM bookmarks 
-	INNER JOIN pastes
-	ON bookmarks.paste = pastes.id
-	WHERE bookmarks.account = ? 
-	GROUP BY bookmarks.name
-	ORDER BY time DESC 
-	`
+	SELECT bookmarks.paste, bookmarks.name, pastes.time 
+	FROM pastes 
+	INNER JOIN bookmarks 
+	ON pastes.id = bookmarks.paste 
+	WHERE bookmarks.account = ?
+	ORDER BY pastes.time DESC`
 
 	rows, err := s.DB.Query(query, account.Id)
 
@@ -75,11 +83,16 @@ func (s *bookmarkStore) Get(account *Account) ([]*Bookmark, error) {
 	}
 
 	var bookmarks []*Bookmark
+	seen := make(map[string]bool)
 
 	for rows.Next() {
 		bookmark := &Bookmark{}
 		rows.Scan(&bookmark.Paste, &bookmark.Name, &bookmark.Time)
-		bookmarks = append(bookmarks, bookmark)
+
+		if seen[bookmark.Name] == false {
+			bookmarks = append(bookmarks, bookmark)
+			seen[bookmark.Name] = true
+		}
 	}
 
 	return bookmarks, nil
