@@ -31,7 +31,7 @@ case $1 in
     echo "$token" > $basedir/.gdf3.token 
     ;;
   ls )
-    curl $url/bookmarks -H "Auth: $token"
+    curl -s $url/bookmarks -H "Auth: $token"
     ;;
   lsa )
     echo "not implemented )"
@@ -40,7 +40,7 @@ case $1 in
     curl -X DELETE "$url/bookmarks/$2" -H "Auth: $token"
     ;;
   get )
-    curl "$url/bookmarks/$2" -H "Auth: $token"
+    curl -s "$url/bookmarks/$2" -H "Auth: $token"
     ;;
   * )
     usage 
