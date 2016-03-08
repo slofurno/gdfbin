@@ -1,3 +1,20 @@
+## Example
+
+```
+gdfbin git:(master)✗ gdf3 ls
+resume             BZ7J3RVB	2 days ago
+gdf3               NJ7JKCR1	5 days ago
+package-component  77JHFYBJ	6 days ago
+webpack-component  6YMZEZTZ	6 days ago
+index.html         R91TTENC	7 days ago
+brb                DPBHHQH5	8 days ago
+makefile           7Y287QN1	8 days ago
+gitignore          1BN7FKJG	8 days ago
+webpack            KR0B13Z5	8 days ago
+.vimrc             HETQ6PMM	8 days ago
+bookmarks.go       2NFHQ95Y	8 days ago
+```
+
 ## Usage
 
 ### Using curl 
