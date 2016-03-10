@@ -70,8 +70,8 @@ func main() {
 
 	r.HandleFunc("/login", getToken).Methods("POST")
 
-	r.HandleFunc("/", postPaste).Methods("POST")
-	r.HandleFunc("/{paste}", getPaste).Methods("GET")
+	r.HandleFunc("/", postPaste2).Methods("POST")
+	r.HandleFunc("/{paste:[0-9A-Za-z]+}", getPaste2).Methods("GET")
 
 	err = http.ListenAndServe(":666", r)
 

@@ -275,6 +275,7 @@ func postPaste(res http.ResponseWriter, req *http.Request) {
 
 	paste := NewPaste()
 	paste.Content = buf.Bytes()
+
 	err = store.Pastes.Insert(paste)
 
 	if err != nil {
@@ -284,4 +285,48 @@ func postPaste(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.Write([]byte("https://gdf3.com/" + paste.Id + "\n"))
+}
+
+func postPaste2(res http.ResponseWriter, req *http.Request) {
+
+	buf := bytes.NewBuffer(nil)
+	_, err := io.Copy(buf, req.Body)
+
+	if err != nil {
+		fmt.Println(err)
+		res.WriteHeader(500)
+		return
+	}
+
+	paste := NewPaste()
+	paste.Content = buf.Bytes()
+
+	pastes := store.Pastes2
+
+	for i := 0; i < len(pastes); i++ {
+		pastes[i].Insert(paste)
+	}
+
+	res.Write([]byte("https://gdf3.com/" + paste.Id + "\n"))
+}
+
+func getPaste2(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	id := vars["paste"]
+
+	pastes := store.Pastes2
+
+	for i := 0; i < len(pastes); i++ {
+		paste, err := pastes[i].Get(id)
+
+		if err != nil {
+			continue
+		}
+
+		res.Header().Add("Content-Type", "text/plain; charset=utf-8")
+		res.Write(paste.Content)
+		return
+	}
+
+	res.WriteHeader(500)
 }
