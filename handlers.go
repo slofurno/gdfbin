@@ -256,9 +256,16 @@ func getPaste(res http.ResponseWriter, req *http.Request) {
 	res.Write(paste.Content)
 }
 
+const home = `<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<pre>cat main.go | curl --data-binary @- https://gdf3.com</pre>
+<div style="position:absolute; bottom:100px;"> cli available at
+<a href="https://github.com/slofurno/gdfbin">github.com/slofurno/gdfbin</a></div>`
+
 func getHome(res http.ResponseWriter, req *http.Request) {
 
-	res.Write([]byte("<!DOCTYPE html><meta charset=\"utf-8\"><pre>cat main.go | curl --data-binary @- https://gdf3.com</pre>"))
+	res.Write([]byte(home))
 	return
 }
 
