@@ -60,4 +60,4 @@ esac
 EOM
 
 chmod +x $basedir/gdf3
-ln -s $basedir/gdf3 /usr/local/bin/gdf3
+ln -sf $basedir/gdf3 /usr/local/bin/gdf3
