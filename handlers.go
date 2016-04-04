@@ -155,6 +155,39 @@ func createBookmark(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(200)
 }
 
+func getHistory(res http.ResponseWriter, req *http.Request) {
+	token := req.Header.Get("Auth")
+
+	if token == "" {
+		res.Write([]byte("missing Auth header"))
+		return
+	}
+
+	account, err := store.Logins.GetAccount(token)
+
+	if err != nil {
+		return
+	}
+
+	vars := mux.Vars(req)
+	name := vars["name"]
+
+	bookmark := &Bookmark{
+		Name:    name,
+		Account: account.Id,
+	}
+
+	pastes := store.Bookmarks.GetHistory(bookmark)
+
+	for _, paste := range pastes {
+		dt := time.Now().Sub(time.Unix(paste.Time/1000, 0))
+		h := int(dt.Hours())
+		d := h / 24
+
+		res.Write([]byte(paste.Id + "\t" + strconv.Itoa(d) + " days ago\n"))
+	}
+}
+
 func getBookmark(res http.ResponseWriter, req *http.Request) {
 
 	token := req.Header.Get("Auth")

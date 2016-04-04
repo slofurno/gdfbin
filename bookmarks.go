@@ -32,14 +32,41 @@ func (s *bookmarkStore) Remove(bookmark *Bookmark) error {
 	return err
 }
 
-func (s *bookmarkStore) GetPaste(bookmark *Bookmark) *Paste {
+func (s *bookmarkStore) GetHistory(bookmark *Bookmark) []*Paste {
 	query := `
-	SELECT pastes.content FROM bookmarks 
+	SELECT pastes.id, pastes.time
+	FROM bookmarks
 	INNER JOIN pastes
 	ON bookmarks.paste = pastes.id
-	WHERE bookmarks.account = ? 
+	WHERE bookmarks.account = ?
 	AND bookmarks.name = ?
-	ORDER BY time DESC 
+	ORDER BY time DESC`
+
+	rows, err := s.DB.Query(query, bookmark.Account, bookmark.Name)
+	pastes := []*Paste{}
+
+	if err != nil {
+		return pastes
+	}
+
+	for rows.Next() {
+		paste := &Paste{}
+		err := rows.Scan(&paste.Id, &paste.Time)
+		if err == nil {
+			pastes = append(pastes, paste)
+		}
+	}
+	return pastes
+}
+
+func (s *bookmarkStore) GetPaste(bookmark *Bookmark) *Paste {
+	query := `
+	SELECT pastes.content FROM bookmarks
+	INNER JOIN pastes
+	ON bookmarks.paste = pastes.id
+	WHERE bookmarks.account = ?
+	AND bookmarks.name = ?
+	ORDER BY time DESC
 	LIMIT 1`
 
 	row := s.DB.QueryRow(query, bookmark.Account, bookmark.Name)
@@ -69,10 +96,10 @@ func (s *bookmarkStore) Get(account *Account) ([]*Bookmark, error) {
 	*/
 
 	query := `
-	SELECT bookmarks.paste, bookmarks.name, pastes.time 
-	FROM pastes 
-	INNER JOIN bookmarks 
-	ON pastes.id = bookmarks.paste 
+	SELECT bookmarks.paste, bookmarks.name, pastes.time
+	FROM pastes
+	INNER JOIN bookmarks
+	ON pastes.id = bookmarks.paste
 	WHERE bookmarks.account = ?
 	ORDER BY pastes.time DESC`
 
