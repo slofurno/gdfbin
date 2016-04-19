@@ -1,14 +1,15 @@
 #!/bin/sh
 basedir=$(pwd)
+url=${1-https://gdf3.com}
 
 cat << EOM > ./gdf3
 #!/bin/sh
 
 basedir="$basedir"
+url="$url"
 EOM
 
 cat << 'EOM' >> ./gdf3
-url="https://gdf3.com"
 
 usage (){
   echo "gdf3 register <email> <password>"
@@ -24,7 +25,7 @@ token=`cat $basedir/.gdf3.token 2> /dev/null`
 
 case $1 in
   mark )
-    name=`curl -s --data-binary @- $url | sed 's|https://gdf3.com/||'`
+    name=`curl -s --data-binary @- $url | sed "s|$url/||"`
     curl -X POST "$url/bookmarks/$name/$2" -H "Auth: $token"
     ;;
   paste )

@@ -17,7 +17,7 @@ bookmarks.go       2NFHQ95Y	8 days ago
 
 ## Usage
 
-### Using curl 
+### Using curl
 
 ```
 cat index.js | curl --data-binary @- https://gdf3.com
@@ -60,12 +60,18 @@ gdf3 get webpack > webpack.config.js
 ```
 
 
-## Hosting 
+## Hosting
 
-### init the sqlite database
+init the sqlite database
 
 ```
 sqlite3 pastes.db ".read schema.sql"
+```
+
+install the cli with your url
+
+```
+./install.sh https://your-domain.io
 ```
 
 install go, get deps, build, and run
