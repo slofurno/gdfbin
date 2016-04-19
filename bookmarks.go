@@ -9,7 +9,7 @@ type Bookmark struct {
 	Account string
 	Paste   string
 	Name    string
-	Time    int64
+	Time    int64 //Gets this from Paste's time
 }
 
 type bookmarkStore struct {

@@ -179,12 +179,23 @@ func getHistory(res http.ResponseWriter, req *http.Request) {
 
 	pastes := store.Bookmarks.GetHistory(bookmark)
 
+	now := time.Now()
 	for _, paste := range pastes {
-		dt := time.Now().Sub(time.Unix(paste.Time/1000, 0))
-		h := int(dt.Hours())
-		d := h / 24
+		created := time.Unix(paste.Time/1000, 0)
+		elapsed := human_time(created, now)
+		fmt.Fprintf(res, "%s\t%s", paste.Id, elapsed)
+	}
+}
 
-		res.Write([]byte(paste.Id + "\t" + strconv.Itoa(d) + " days ago\n"))
+func human_time(t0, t1 time.Time) string {
+	h := int(t1.Sub(t0).Hours())
+	if h >= 48 {
+		d := int(h / 24)
+		return strconv.Itoa(d) + " days ago"
+	} else if h >= 24 {
+		return "yesterday"
+	} else {
+		return strconv.Itoa(h) + " hours ago"
 	}
 }
 
@@ -253,23 +264,12 @@ func getBookmarks(res http.ResponseWriter, req *http.Request) {
 
 	maxLength += 2
 
+	now := time.Now()
 	for _, bookmark := range bookmarks {
-		dt := time.Now().Sub(time.Unix(bookmark.Time/1000, 0))
-		var modified string
-		h := int(dt.Hours())
-
+		created := time.Unix(bookmark.Time/1000, 0)
+		elapsed := human_time(created, now)
 		tab := strings.Repeat(" ", maxLength-len(bookmark.Name))
-
-		if h >= 48 {
-			d := int(h / 24)
-			modified = strconv.Itoa(d) + " days ago"
-		} else if h >= 24 {
-			modified = "yesterday"
-		} else {
-			modified = strconv.Itoa(h) + " hours ago"
-		}
-
-		res.Write([]byte(bookmark.Name + tab + bookmark.Paste + "\t" + modified + "\n"))
+		fmt.Fprintf(res, "%s%s%s\t%s\n", bookmark.Name, tab, bookmark.Paste, elapsed)
 	}
 }
 
