@@ -19,6 +19,8 @@ usage (){
   echo "gdf3 ls"
   echo "gdf3 get <name>"
   echo "gdf3 rm <name>"
+  echo 'gdf3 cp <name>'
+  echo 'gdf3 log <name>'
 }
 
 token=`cat $basedir/.gdf3.token 2> /dev/null`
@@ -52,6 +54,12 @@ case $1 in
     ;;
   get )
     curl -s "$url/bookmarks/$2" -H "Auth: $token"
+    ;;
+  cp )
+    curl -s "$url/bookmarks/$2" -H "Auth: $token" >> $2
+    ;;
+  log )
+    curl -s "$url/bookmarks/$2/history" -H "Auth: $token"
     ;;
   * )
     usage

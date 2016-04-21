@@ -59,6 +59,18 @@ download a bookmarked paste
 gdf3 get webpack > webpack.config.js
 ```
 
+download and save a bookmarked paste ( won't overwrite existing )
+
+```
+gdf3 cp .vimrc
+````
+
+get bookmark history
+
+```
+gdf3 log .vimrc
+```
+
 
 ## Hosting
 

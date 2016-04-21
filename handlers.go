@@ -183,7 +183,7 @@ func getHistory(res http.ResponseWriter, req *http.Request) {
 	for _, paste := range pastes {
 		created := time.Unix(paste.Time/1000, 0)
 		elapsed := human_time(created, now)
-		fmt.Fprintf(res, "%s\t%s", paste.Id, elapsed)
+		fmt.Fprintf(res, "%s\t%s\n", paste.Id, elapsed)
 	}
 }
 
