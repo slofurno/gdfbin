@@ -22,22 +22,20 @@ func randomHash(n int) string {
 var symbols = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 
 func crock32(bytes []byte) string {
-
-	count := len(bytes) * 8
-	out := make([]byte, int(count/5))
-
-	var n uint = 0
+	res := 0
 	var j uint = 0
-	var k uint = 0
-	var m uint = 0
+	out := []byte{}
 
-	for i := 0; i < count; i++ {
-		j = uint(i / 8)
-		k = uint(i / 5)
-		n = uint(i % 5)
-		m = uint(i % 8)
+	for i := 0; i < len(bytes); i++ {
+		j += 8
+		res <<= 8
+		res |= int(bytes[i])
 
-		out[k] |= ((bytes[j] >> m) & 1) << n
+		for j >= 5 {
+			j -= 5
+			b := (res >> j) & 31
+			out = append(out, byte(b))
+		}
 	}
 
 	for i, _ := range out {
