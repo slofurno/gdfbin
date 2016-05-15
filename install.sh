@@ -56,7 +56,7 @@ case $1 in
     curl -s "$url/bookmarks/$2" -H "Auth: $token"
     ;;
   cp )
-    curl -s "$url/bookmarks/$2" -H "Auth: $token" >> $2
+    [ -e "$2" ] && echo "file already exists" || curl -s "$url/bookmarks/$2" -H "Auth: $token" >> $2
     ;;
   log )
     curl -s "$url/bookmarks/$2/history" -H "Auth: $token"
